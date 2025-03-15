@@ -146,8 +146,8 @@ To ensure effective project completion within 4-5 weeks, our team has clearly de
 | Team Member       | Responsibilities                                                                                                                   |
 |-------------------|------------------------------------------------------------------------------------------------------------------------------------|
 | Backend Developer (Member 1)  | - Infrastructure setup (Docker, Kubernetes, PostgreSQL, Redis, Kafka)<br>- Complex backend services development (Transaction Service, Notification Service, File Service, Saga distributed transactions)<br>- Advanced backend logic and API Gateway detailed setup |
-| Frontend Developer (Member 2) | - Frontend setup, UI development, and design (React.js, Tailwind CSS, shadcn/ui)<br>- API integration (Auth, Account, Transaction, Notification, File services)<br>- Assisting backend setup for simpler API tasks and basic backend integration tests |
-| Frontend Developer (Yiming Li) | - Frontend setup, UI development, and design (React.js, Tailwind CSS, shadcn/ui)<br>- Frontend integration testing and adjustments<br>- Support Backend Specialist with simpler backend tasks (API Gateway basic configuration, Auth and Account APIs integration) |
+| Frontend Developer (Yiming Li) | - Frontend setup, UI development, and design (React.js, Tailwind CSS, shadcn/ui)<br>- API integration (Auth, Account, Transaction, Notification, File services)<br>- Assisting backend setup for simpler API tasks and basic backend integration tests |
+| Frontend Developer (Member 3) | - Frontend setup, UI development, and design (React.js, Tailwind CSS, shadcn/ui)<br>- Frontend integration testing and adjustments<br>- Support Backend Specialist with simpler backend tasks (API Gateway basic configuration, Auth and Account APIs integration) |
 
 ### Rationale for Task Distribution
 
