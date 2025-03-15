@@ -42,9 +42,9 @@ The primary objective of our project is to develop a distributed banking transac
 
 Our project will follow the "Separate Frontend & Backend" architecture approach:
 
-- **Frontend:** React.js. React will provide a dynamic, responsive, and user-friendly interface. Tailwind CSS will ensure a modern, consistent, and responsive design. The shadcn/ui library will offer accessible, customizable components for rapid development.
+- **Frontend:** React will provide a dynamic, responsive, and user-friendly interface. Tailwind CSS will ensure a modern, consistent, and responsive design. The shadcn/ui library will offer accessible, customizable components for rapid development.
 
-- **Backend:** Express.js. We will use Node.js with the Express.js framework to create distinct microservices for Auth, Account, Transaction, Notification, and File Management. RESTful API design principles will guide API creation, ensuring clear and efficient communication between services. The API Gateway will handle request routing, JWT-based authentication, and rate limiting.
+- **Backend:** We will use Node.js with the Express.js framework to create distinct microservices for Auth, Account, Transaction, Notification, and File Management. RESTful API design principles will guide API creation, ensuring clear and efficient communication between services. The API Gateway will handle request routing, JWT-based authentication, and rate limiting.
 
 ### Core Features
 
