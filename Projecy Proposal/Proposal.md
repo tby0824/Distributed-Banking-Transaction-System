@@ -151,10 +151,10 @@ To ensure effective project completion within 4-5 weeks, our team has clearly de
 
 ### Rationale for Task Distribution
 
-- **Backend Specialist (Member 1)**
+- **Backend Specialist**
     - Responsible for critical backend infrastructure and complex distributed system tasks due to their expertise in backend technologies, ensuring robust and secure system architecture.
 
-- **Frontend Developers (Members 2 and 3)** 
+- **Frontend Developers** 
     - Initially focus on frontend UI tasks due to simplicity and quicker completion potential. 
     - Upon completing frontend tasks, they will support backend development by handling simpler backend functionalities and assisting integration processes, ensuring effective team collaboration and balanced workload distribution.
 
