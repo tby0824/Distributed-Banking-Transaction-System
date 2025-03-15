@@ -3,7 +3,7 @@
 ### **Group Member:**
 + a 
 + b
-+ Yiming Li (1006147368)
++ Yiming Li (1006147368) Department: Electrical & Computer Engineering
 
 ## Motivation
 
