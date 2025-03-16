@@ -2,7 +2,7 @@
 
 ### **Group Member:**
 + Boyuan Tan (1011579258) - boyuan.tan@mail.utoronto.ca
-+ Minghao Ma (1010800536) Department: Electrical & Computer Engineering
++ Minghao Ma (1010800536) - minghao.ma@mail.utoronto.ca
 + Yiming Li (1006147368) - yimingjo.li@mail.utoronto.ca
 
 ## Motivation
