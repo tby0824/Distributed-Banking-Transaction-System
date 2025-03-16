@@ -1,7 +1,7 @@
 # ECE1724 Project Proposal - Distributed Banking Transaction System
 
 ### **Group Member:**
-+ a 
++ Boyuan Tan (1011579258) - boyuan.tan@mail.utoronto.ca
 + Minghao Ma (1010800536) Department: Electrical & Computer Engineering
 + Yiming Li (1006147368) Department: Electrical & Computer Engineering
 
@@ -21,8 +21,6 @@ This project not only demonstrates modern, industry-standard technologies but al
 
 ### Target Users
 
-The primary users of this project are:
-
 - **Bank customers:** Individuals requiring reliable, secure, and instantaneous banking transactions, notifications, and account management.
 
 - **Banking institutions:** Organizations aiming to provide scalable, modern digital financial services, improve customer satisfaction, and reduce technical debt associated with legacy systems.
@@ -39,8 +37,6 @@ Existing banking systems typically rely on traditional monolithic designs, limit
 The primary objective of our project is to develop a distributed banking transaction system that leverages a microservices architecture, incorporating modern backend and frontend technologies. The system aims to provide reliable, scalable, and responsive banking operations, including user authentication, account management, cross-account transactions, real-time notifications, and cloud-based file handling.
 
 ### Technical Implementation Approach
-
-Our project will follow the "Separate Frontend & Backend" architecture approach:
 
 - **Frontend:** React will provide a dynamic, responsive, and user-friendly interface. Tailwind CSS will ensure a modern, consistent, and responsive design. The shadcn/ui library will offer accessible, customizable components for rapid development.
 
@@ -145,7 +141,7 @@ To ensure effective project completion within 4-5 weeks, our team has clearly de
 
 | Team Member       | Responsibilities                                                                                                                   |
 |-------------------|------------------------------------------------------------------------------------------------------------------------------------|
-| Backend Developer (Member 1)  | - Infrastructure setup (Docker, Kubernetes, PostgreSQL, Redis, Kafka)<br>- Complex backend services development (Transaction Service, Notification Service, File Service, Saga distributed transactions)<br>- Advanced backend logic and API Gateway detailed setup |
+| Backend Developer (Boyuan Tan)  | - Infrastructure setup (Express.js, Docker, Kubernetes, Azure Database for PostgreSQL, RESTful API, Azure Blob Storage, Saga Pattern, Redis, Kafka)<br>- Complex backend services development (Transaction Service, Notification Service, File Service, Saga distributed transactions)<br>- Advanced backend logic and API Gateway detailed setup |
 | Frontend Developer (Yiming Li) | - Frontend setup, UI development, and design (React.js, Tailwind CSS, shadcn/ui)<br>- API integration (Auth, Account, Transaction, Notification, File services)<br>- Assisting backend setup for simpler API tasks and basic backend integration tests |
 | Frontend Developer (Minghao Ma) | - Frontend setup, UI development, and design (React.js, Tailwind CSS, shadcn/ui)<br>- Frontend integration testing and adjustments<br>- Support Backend Specialist with simpler backend tasks (API Gateway basic configuration, Auth and Account APIs integration) |
 
