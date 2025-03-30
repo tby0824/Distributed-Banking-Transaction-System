@@ -3,13 +3,20 @@ import { Link } from 'react-router-dom';
 
 function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-r from-blue-100 to-purple-100">
+    <div className="min-h-screen bg-white">
       <header className="p-4 bg-white shadow-md">
         <h1 className="text-2xl font-bold text-gray-800">Distributed Banking System</h1>
       </header>
-      <div className="flex flex-col items-center justify-center h-[calc(100vh-64px)]">
-        <h2 className="text-4xl font-semibold text-gray-800 mb-6">Welcome</h2>
-        <p className="text-gray-600 mb-8">Manage your accounts and transactions with ease.</p>
+      <div className="flex flex-col items-center justify-center h-[calc(100vh-64px)] text-center">
+        <img
+          src="https://via.placeholder.com/400x200?text=Banking+Image"
+          alt="Banking"
+          className="mb-6 rounded-lg shadow-lg"
+        />
+        <h2 className="text-4xl font-semibold text-gray-800 mb-4">Welcome to Your Banking Hub</h2>
+        <p className="text-gray-600 mb-8 max-w-md">
+          Securely manage your accounts, transfer funds, and stay updated with real-time notifications.
+        </p>
         <div className="flex space-x-6">
           <Link
             to="/auth"

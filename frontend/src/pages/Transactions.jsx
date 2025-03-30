@@ -13,7 +13,7 @@ function Transactions() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-blue-100 to-purple-100 p-6">
+    <div className="min-h-screen bg-white p-6">
       <h1 className="text-3xl font-bold text-gray-800 mb-6">Transactions</h1>
       <TransactionForm setTransactions={setTransactions} />
       {notification && (
