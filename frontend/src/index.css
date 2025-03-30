@@ -2,6 +2,4 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  font-family: 'Inter', sans-serif; /* Clean, modern font */
-}
+/* Remove any extra imports or custom styles here for now */
