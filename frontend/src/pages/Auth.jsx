@@ -4,9 +4,8 @@ import Register from '../components/Register';
 
 function Auth() {
   return (
-    <div className="flex flex-col items-center justify-center h-screen">
-      <h1 className="text-3xl font-bold mb-6">Authentication</h1>
-      <div className="flex space-x-8">
+    <div className="min-h-screen bg-gradient-to-r from-blue-100 to-purple-100 flex items-center justify-center">
+      <div className="max-w-4xl w-full p-6 flex space-x-8">
         <Login />
         <Register />
       </div>
