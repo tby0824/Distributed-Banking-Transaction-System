@@ -1,19 +1,23 @@
 import React, { useState } from 'react';
-import { deleteAccount, getTransactionHistory, transferFunds } from '../services/accountService';
+import { deleteAccount, getTransactionHistory, transferFunds, getAccounts } from '../services/accountService';
 
-function AccountList({ accounts, setAccounts, setError }) {
+function AccountList({ accounts, onAccountsChange, onError }) {
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [history, setHistory] = useState([]);
   const [showDeleteModal, setShowDeleteModal] = useState(null);
-  const [transferAccountId, setTransferAccountId] = useState(null);
+  const [transferAccountId, setTransferAccountId] = useState('');
+  const [loadingAction, setLoadingAction] = useState(null);
 
   const handleViewHistory = async (accountId) => {
     try {
+      setLoadingAction('history');
       const transactions = await getTransactionHistory(accountId);
       setSelectedAccount(accountId);
       setHistory(transactions);
     } catch (err) {
-      setError('Failed to load transaction history.');
+      onError('Failed to load transaction history: ' + err.message);
+    } finally {
+      setLoadingAction(null);
     }
   };
 
@@ -26,28 +30,39 @@ function AccountList({ accounts, setAccounts, setError }) {
     const account = accounts.find((acc) => acc.id === accountId);
     if (account.balance > 0) {
       setShowDeleteModal(accountId);
+      setTransferAccountId('');
     } else {
       try {
+        setLoadingAction('delete');
         await deleteAccount(accountId);
-        setAccounts((prev) => prev.filter((acc) => acc.id !== accountId));
+        const updatedAccounts = await getAccounts();
+        onAccountsChange(updatedAccounts);
       } catch (err) {
-        setError('Failed to delete account.');
+        onError('Failed to delete account: ' + err.message);
+      } finally {
+        setLoadingAction(null);
       }
     }
   };
 
   const handleConfirmDelete = async () => {
-    const account = accounts.find((acc) => acc.id === showDeleteModal);
     try {
+      setLoadingAction('delete');
+      const account = accounts.find((acc) => acc.id === showDeleteModal);
+      if (!account) throw new Error('Account to delete not found');
+
       if (transferAccountId) {
-        await transferFunds(showDeleteModal, transferAccountId, account.balance);
+        await transferFunds(showDeleteModal, Number(transferAccountId), account.balance);
       }
       await deleteAccount(showDeleteModal);
-      setAccounts((prev) => prev.filter((acc) => acc.id !== showDeleteModal));
+      const updatedAccounts = await getAccounts();
+      onAccountsChange(updatedAccounts);
       setShowDeleteModal(null);
-      setTransferAccountId(null);
+      setTransferAccountId('');
     } catch (err) {
-      setError('Failed to process deletion.');
+      onError(`Failed to process deletion or transfer funds: ${err.message}`);
+    } finally {
+      setLoadingAction(null);
     }
   };
 
@@ -62,7 +77,7 @@ function AccountList({ accounts, setAccounts, setError }) {
           {accounts.map((account) => (
             <div
               key={account.id}
-              className="p-6 bg-white rounded-xl shadow-md border border-gray-200 hover:shadow-lg transition-all min-h-[150px]" // 减少高度，因为历史移到弹窗
+              className="p-6 bg-white rounded-xl shadow-md border border-gray-200 hover:shadow-lg transition-all min-h-[150px]"
             >
               <div className="flex justify-between items-center">
                 <div>
@@ -75,14 +90,16 @@ function AccountList({ accounts, setAccounts, setError }) {
                 <button
                   onClick={() => handleViewHistory(account.id)}
                   className="px-3 py-1 bg-blue-100 text-blue-600 rounded-md hover:bg-blue-200 transition-colors"
+                  disabled={loadingAction === 'history'}
                 >
-                  View History
+                  {loadingAction === 'history' ? 'Loading...' : 'View History'}
                 </button>
                 <button
                   onClick={() => handleDelete(account.id)}
                   className="px-3 py-1 bg-red-100 text-red-600 rounded-md hover:bg-red-200 transition-colors"
+                  disabled={loadingAction === 'delete'}
                 >
-                  Delete
+                  {loadingAction === 'delete' ? 'Deleting...' : 'Delete'}
                 </button>
               </div>
             </div>
@@ -90,7 +107,6 @@ function AccountList({ accounts, setAccounts, setError }) {
         </div>
       )}
 
-      {/* Transaction History Modal */}
       {selectedAccount && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl p-6 w-full max-w-md shadow-2xl animate-fade-in">
@@ -108,7 +124,7 @@ function AccountList({ accounts, setAccounts, setError }) {
             {history.length === 0 ? (
               <p className="text-gray-500 text-sm">No transactions yet.</p>
             ) : (
-              <ul className="space-y-2 max-h-64 overflow-y-auto pr-2"> {/* 带滚动条 */}
+              <ul className="space-y-2 max-h-64 overflow-y-auto pr-2">
                 {history.map((tx) => (
                   <li key={tx.id} className="text-sm text-gray-600">
                     {tx.date} - {tx.type === 'debit' ? '-' : '+'}${tx.amount} ({tx.description})
@@ -120,14 +136,13 @@ function AccountList({ accounts, setAccounts, setError }) {
         </div>
       )}
 
-      {/* Delete Confirmation Modal */}
       {showDeleteModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl p-6 w-full max-w-md shadow-2xl">
             <h3 className="text-xl font-semibold text-gray-800 mb-4">Delete Account</h3>
             <p className="text-gray-600 mb-4">
               This account has a balance of $
-              {accounts.find((acc) => acc.id === showDeleteModal).balance.toFixed(2)}. Please transfer
+              {accounts.find((acc) => acc.id === showDeleteModal)?.balance.toFixed(2)}. Please transfer
               the funds before deleting.
             </p>
             <div className="mb-4">
@@ -135,7 +150,7 @@ function AccountList({ accounts, setAccounts, setError }) {
                 Transfer to:
               </label>
               <select
-                value={transferAccountId || ''}
+                value={transferAccountId}
                 onChange={(e) => setTransferAccountId(e.target.value)}
                 className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500"
               >
@@ -158,12 +173,14 @@ function AccountList({ accounts, setAccounts, setError }) {
               </button>
               <button
                 onClick={handleConfirmDelete}
-                disabled={!transferAccountId}
+                disabled={!transferAccountId || loadingAction === 'delete'}
                 className={`w-full p-3 rounded-md text-white font-medium transition-colors ${
-                  !transferAccountId ? 'bg-gray-400' : 'bg-red-500 hover:bg-red-600'
+                  !transferAccountId || loadingAction === 'delete'
+                    ? 'bg-gray-400'
+                    : 'bg-red-500 hover:bg-red-600'
                 }`}
               >
-                Delete
+                {loadingAction === 'delete' ? 'Processing...' : 'Delete'}
               </button>
             </div>
           </div>

@@ -1,4 +1,4 @@
-import { updateAccountBalance } from './accountService';
+import { updateAccountBalance } from './accountService'; // 保留导入，但不直接使用
 
 let transactions = [
   { id: 1, fromAccount: 'Daily Checking', toAccount: 'Main Savings', amount: 100, status: 'Completed', reason: 'Daily Transfer', description: 'Monthly savings', type: 'transfer' },
@@ -25,17 +25,7 @@ export const createTransaction = ({ fromAccount, toAccount, amount, reason, desc
     type,
   };
 
-  // 根据交易类型更新账户余额
-  if (type === 'transfer') {
-    updateAccountBalance(fromAccount, amount, true); // 减少转出账户余额
-    updateAccountBalance(toAccount, amount, false); // 增加转入账户余额
-  } else if (type === 'credit') {
-    updateAccountBalance(toAccount, amount, false); // 增加目标账户余额
-  } else if (type === 'debit') {
-    updateAccountBalance(fromAccount, amount, true); // 减少源账户余额
-  }
-
-  // 只添加一次交易记录
+  // 移除余额更新逻辑，交由调用方处理
   transactions.push(newTransaction);
   return newTransaction;
 };

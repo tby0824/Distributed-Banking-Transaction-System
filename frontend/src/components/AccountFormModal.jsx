@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { createAccount } from '../services/accountService';
+import { createAccount, getAccounts } from '../services/accountService';
 
-function AccountFormModal({ setAccounts, setError, closeModal }) {
-  const [name, setName] = useState('');
-  const [accountType, setAccountType] = useState('savings');
+function AccountFormModal({ onAccountsChange, onError, closeModal }) {
+  const [formData, setFormData] = useState({
+    name: '',
+    accountType: 'savings',
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [localError, setLocalError] = useState('');
 
@@ -13,19 +15,38 @@ function AccountFormModal({ setAccounts, setError, closeModal }) {
     { value: 'investment', label: 'Investment Account', description: 'Grow your wealth' },
   ];
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+    if (localError) setLocalError('');
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!formData.name.trim()) {
+      setLocalError('Account name is required.');
+      return;
+    }
+
     setIsSubmitting(true);
     setLocalError('');
 
     try {
-      const newAccount = await createAccount({ name, type: accountType });
-      setAccounts((prev) => [...prev, newAccount]);
+      await createAccount({
+        name: formData.name.trim(),
+        type: formData.accountType,
+      });
+      const updatedAccounts = await getAccounts();
+      onAccountsChange(updatedAccounts);
       closeModal();
     } catch (err) {
-      const errorMsg = 'Failed to create account. Please try again.';
+      const errorMsg = err.message || 'Failed to create account. Please try again.';
       setLocalError(errorMsg);
-      setError(errorMsg);
+      onError(errorMsg);
     } finally {
       setIsSubmitting(false);
     }
@@ -42,24 +63,32 @@ function AccountFormModal({ setAccounts, setError, closeModal }) {
 
         <form onSubmit={handleSubmit}>
           <div className="mb-5">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Account Name</label>
+            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+              Account Name
+            </label>
             <input
               type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500"
+              id="name"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 disabled:opacity-50"
               placeholder="e.g., My Savings"
-              required
               disabled={isSubmitting}
+              required
             />
           </div>
 
           <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Account Type</label>
+            <label htmlFor="accountType" className="block text-sm font-medium text-gray-700 mb-2">
+              Account Type
+            </label>
             <select
-              value={accountType}
-              onChange={(e) => setAccountType(e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500"
+              id="accountType"
+              name="accountType"
+              value={formData.accountType}
+              onChange={handleChange}
+              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 disabled:opacity-50"
               disabled={isSubmitting}
             >
               {accountOptions.map((option) => (
@@ -74,7 +103,7 @@ function AccountFormModal({ setAccounts, setError, closeModal }) {
             <button
               type="button"
               onClick={closeModal}
-              className="w-full p-3 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors"
+              className="w-full p-3 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors disabled:opacity-50"
               disabled={isSubmitting}
             >
               Cancel

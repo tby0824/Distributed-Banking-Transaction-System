@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createTransaction } from '../services/transactionService';
-import { getAccounts } from '../services/accountService';
+import { getAccounts, updateAccountBalance } from '../services/accountService';
 
 function TransactionForm({ setTransactions, setError, setNotification }) {
   const [type, setType] = useState('');
@@ -13,19 +13,8 @@ function TransactionForm({ setTransactions, setError, setNotification }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [accounts, setAccounts] = useState([]);
 
-  const typeOptions = [
-    'transfer',
-    'credit',
-    'debit',
-  ];
-
-  const reasonOptions = [
-    'Daily Transfer',
-    'Bill Payment',
-    'Gift',
-    'Investment',
-    'Custom',
-  ];
+  const typeOptions = ['transfer', 'credit', 'debit'];
+  const reasonOptions = ['Daily Transfer', 'Bill Payment', 'Gift', 'Investment', 'Custom'];
 
   useEffect(() => {
     const fetchAccounts = async () => {
@@ -73,19 +62,32 @@ function TransactionForm({ setTransactions, setError, setNotification }) {
     setIsSubmitting(true);
     setError(null);
     setNotification('');
-  
+
     try {
       validateInputs();
       const finalReason = reason === 'Custom' ? customReason : reason;
-      const newTransaction = createTransaction({
+      const transactionData = {
         fromAccount: type === 'credit' ? 'External' : fromAccount,
         toAccount: type === 'debit' ? 'External' : toAccount,
         amount,
         reason: finalReason,
         description,
         type,
-      });
-  
+      };
+
+      // 更新余额
+      if (type === 'transfer') {
+        updateAccountBalance(fromAccount, amount, true);
+        updateAccountBalance(toAccount, amount, false);
+      } else if (type === 'credit') {
+        updateAccountBalance(toAccount, amount, false);
+      } else if (type === 'debit') {
+        updateAccountBalance(fromAccount, amount, true);
+      }
+
+      // 创建交易记录
+      const newTransaction = createTransaction(transactionData);
+
       setTransactions((prev) => {
         if (prev.some((tx) => tx.id === newTransaction.id)) {
           return prev;
@@ -114,7 +116,6 @@ function TransactionForm({ setTransactions, setError, setNotification }) {
     >
       <h2 className="text-2xl font-semibold text-gray-800 mb-6">New Transaction</h2>
 
-      {/* Transaction Type */}
       <div className="mb-5">
         <label className="block text-sm font-medium text-gray-700 mb-2">Transaction Type</label>
         <select
@@ -130,7 +131,6 @@ function TransactionForm({ setTransactions, setError, setNotification }) {
         </select>
       </div>
 
-      {/* From Account */}
       {(type === 'transfer' || type === 'debit') && (
         <div className="mb-5">
           <label className="block text-sm font-medium text-gray-700 mb-2">From Account</label>
@@ -150,7 +150,6 @@ function TransactionForm({ setTransactions, setError, setNotification }) {
         </div>
       )}
 
-      {/* To Account */}
       {(type === 'transfer' || type === 'credit') && (
         <div className="mb-5">
           <label className="block text-sm font-medium text-gray-700 mb-2">To Account</label>
@@ -170,7 +169,6 @@ function TransactionForm({ setTransactions, setError, setNotification }) {
         </div>
       )}
 
-      {/* Amount */}
       <div className="mb-5">
         <label className="block text-sm font-medium text-gray-700 mb-2">Amount</label>
         <input
@@ -185,7 +183,6 @@ function TransactionForm({ setTransactions, setError, setNotification }) {
         />
       </div>
 
-      {/* Reason */}
       <div className="mb-5">
         <label className="block text-sm font-medium text-gray-700 mb-2">Reason</label>
         <select
@@ -203,7 +200,6 @@ function TransactionForm({ setTransactions, setError, setNotification }) {
         </select>
       </div>
 
-      {/* Custom Reason */}
       {reason === 'Custom' && (
         <div className="mb-5">
           <label className="block text-sm font-medium text-gray-700 mb-2">Custom Reason</label>
@@ -218,7 +214,6 @@ function TransactionForm({ setTransactions, setError, setNotification }) {
         </div>
       )}
 
-      {/* Description */}
       <div className="mb-5">
         <label className="block text-sm font-medium text-gray-700 mb-2">Description (Optional)</label>
         <textarea
@@ -229,7 +224,6 @@ function TransactionForm({ setTransactions, setError, setNotification }) {
         />
       </div>
 
-      {/* Submit Button */}
       <button
         type="submit"
         disabled={isSubmitting || accounts.length === 0}

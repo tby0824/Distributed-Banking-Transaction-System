@@ -31,7 +31,6 @@ function Accounts() {
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-5xl mx-auto">
-        {/* Header with Buttons */}
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-4xl font-bold text-gray-800">Your Banking Dashboard</h1>
           <div className="flex gap-4">
@@ -56,18 +55,15 @@ function Accounts() {
           </div>
         </div>
 
-        {/* Total Balance */}
         <div className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-6 rounded-xl shadow-lg mb-8">
           <h2 className="text-lg font-medium">Total Balance</h2>
           <p className="text-4xl font-bold mt-2">${totalBalance.toFixed(2)}</p>
         </div>
 
-        {/* Error Display */}
         {error && (
           <div className="mb-6 p-4 bg-red-100 text-red-700 rounded-lg">{error}</div>
         )}
 
-        {/* Accounts and Add Button */}
         {loading ? (
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500 mx-auto"></div>
@@ -83,9 +79,12 @@ function Accounts() {
                 + Add New Account
               </button>
             </div>
-            <AccountList accounts={accounts} setAccounts={setAccounts} setError={setError} />
+            <AccountList
+              accounts={accounts}
+              onAccountsChange={setAccounts}
+              onError={setError}
+            />
 
-            {/* Offers Section */}
             <div className="mt-12">
               <h3 className="text-2xl font-semibold text-gray-800 mb-4">Latest Offers</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -104,11 +103,10 @@ function Accounts() {
           </>
         )}
 
-        {/* Account Creation Modal */}
         {isModalOpen && (
           <AccountFormModal
-            setAccounts={setAccounts}
-            setError={setError}
+            onAccountsChange={setAccounts}
+            onError={setError}
             closeModal={() => setIsModalOpen(false)}
           />
         )}
