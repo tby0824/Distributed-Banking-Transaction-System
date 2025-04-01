@@ -1,4 +1,4 @@
-import { updateAccountBalance } from './accountService'; // 保留导入，但不直接使用
+import { updateAccountBalance } from './accountService';
 
 let transactions = [
   { id: 1, fromAccount: 'Daily Checking', toAccount: 'Main Savings', amount: 100, status: 'Completed', reason: 'Daily Transfer', description: 'Monthly savings', type: 'transfer' },
@@ -25,7 +25,6 @@ export const createTransaction = ({ fromAccount, toAccount, amount, reason, desc
     type,
   };
 
-  // 移除余额更新逻辑，交由调用方处理
   transactions.push(newTransaction);
   return newTransaction;
 };

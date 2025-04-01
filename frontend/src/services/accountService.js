@@ -39,11 +39,9 @@ export const transferFunds = async (fromAccountId, toAccountId, amount) => {
     throw new Error('Insufficient funds in source account');
   }
 
-  // 更新余额
   fromAccount.balance -= Number(amount);
   toAccount.balance += Number(amount);
 
-  // 记录交易，不重复更新余额
   const transferTransaction = createTransaction({
     fromAccount: fromAccount.name,
     toAccount: toAccount.name,
@@ -77,7 +75,7 @@ export const getTransactionHistory = async (accountId) => {
     .filter((tx) => tx.fromAccount === account.name || tx.toAccount === account.name)
     .map((tx) => ({
       id: tx.id,
-      date: new Date().toISOString().split('T')[0], // 模拟日期
+      date: new Date().toISOString().split('T')[0],
       type: tx.fromAccount === account.name ? 'debit' : 'credit',
       amount: tx.amount,
       description: `${tx.reason} - ${tx.description || 'No description'}`,
