@@ -4,13 +4,11 @@ const ToastContext = createContext()
 
 export const ToastProvider = ({ children }) => {
     const [toasts, setToasts] = useState([])
-
     const addToast = useCallback((message, type = 'success') => {
         const id = Date.now()
         setToasts(prev => [...prev, { id, message, type }])
         setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 3000)
     }, [])
-
     return (
         <ToastContext.Provider value={addToast}>
             {children}
@@ -24,5 +22,4 @@ export const ToastProvider = ({ children }) => {
         </ToastContext.Provider>
     )
 }
-
 export const useToast = () => useContext(ToastContext)

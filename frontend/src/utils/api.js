@@ -3,11 +3,9 @@ export const apiFetch = async (url, options = {}) => {
     const headers = options.headers || {}
     if (token) headers['Authorization'] = `Bearer ${token}`
     options.headers = headers
-
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), 10000)
     options.signal = controller.signal
-
     try {
         const response = await fetch(url, options)
         clearTimeout(timeoutId)

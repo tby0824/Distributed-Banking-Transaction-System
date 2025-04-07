@@ -13,7 +13,5 @@ export const uploadFile = async (file, ownerId) => {
 }
 
 export const getFiles = () => apiFetch('/files')
-
 export const deleteFile = (id) => apiFetch(`/files/${id}`, { method: 'DELETE' })
-
 export const createDownloadUrl = (id) => `/files/${id}/download`

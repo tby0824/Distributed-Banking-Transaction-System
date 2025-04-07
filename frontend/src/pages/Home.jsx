@@ -1,7 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../store/AuthContext'
-
 export default function Home() {
     const { token } = useAuth()
     return (

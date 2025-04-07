@@ -84,10 +84,13 @@ services:
     build: ./file-service
     environment:
       - DATABASE_URL=postgresql://tby:Tanboyuan0724%29@bank2.postgres.database.azure.com:5432/postgres?sslmode=require
+      - AZURE_STORAGE_CONNECTION_STRING=DefaultEndpointsProtocol=https;AccountName=mystorageaccount8777;AccountKey=baCO41DuLu+eEV2bpLRiOqOWXqTjYTlV5LJUAiicZYNN7ZmqeOK+X1ywz8FDSE58iXkWFEw/f5+5+AStcu2r1Q==;EndpointSuffix=core.windows.net
+      - AZURE_STORAGE_CONTAINER_NAME=uploads
     depends_on:
       - postgres
     ports:
       - "4005:4005"
+
 
 volumes:
   pgdata:
