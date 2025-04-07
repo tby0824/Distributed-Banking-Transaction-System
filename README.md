@@ -164,7 +164,7 @@ Middleware components:
 - This project has provided valuable hands-on experience in building, testing, and deploying a modern, distributed system.
 
 ## Video Demo
-A demo video by Yiming Li(teammate):
+A demo video by Yiming Li(teammate): [4 mins video](https://drive.google.com/file/d/1R-J5nz73TkYlvky1uyYa-Mu-L98TrdGq/view?usp=sharing)
   
 
 ## Source Code
