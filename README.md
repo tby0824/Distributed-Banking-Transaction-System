@@ -96,7 +96,7 @@ Middleware components:
    - Install [Docker Desktop](https://www.docker.com/products/docker-desktop).
    - Navigate to the backend directory (where `docker-compose.yml` is located):
      ```bash
-     cd /path/to/Distributed-Banking-Transaction-System-main/backend
+     cd /path/to/Distributed-Banking-Transaction-System/backend
      ```
    - Start all backend microservices:
      ```bash
