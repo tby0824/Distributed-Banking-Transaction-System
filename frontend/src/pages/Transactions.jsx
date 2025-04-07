@@ -1,173 +1,165 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import TransactionForm from '../components/TransactionForm';
-import { getTransactions } from '../services/transactionService';
-import { getAccounts } from '../services/accountService';
+import React, { useState, useEffect } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { getTransactions, createTransaction } from '../services/transactionService'
+import { getAccounts } from '../services/accountService'
+import { useToast } from '../store/ToastContext'
+import { useAuth } from '../store/AuthContext'
+import { decodeToken } from '../utils/decodeToken'
 
-function Transactions() {
-  const [transactions, setTransactions] = useState([]);
-  const [accounts, setAccounts] = useState([]);
-  const [notification, setNotification] = useState('');
-  const [error, setError] = useState(null);
-  const [selectedTransaction, setSelectedTransaction] = useState(null);
-  const navigate = useNavigate();
+export default function Transactions() {
+    const [txs, setTxs] = useState([])
+    const [accs, setAccs] = useState([])
+    const [error, setError] = useState('')
+    const [from, setFrom] = useState('')
+    const [to, setTo] = useState('')
+    const [amt, setAmt] = useState('')
+    const toast = useToast()
+    const loc = useLocation()
+    const nav = useNavigate()
+    const { token } = useAuth()
+    const user = decodeToken(token)
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const initialTransactions = getTransactions();
-        setTransactions(initialTransactions);
-        const accountData = await getAccounts();
-        setAccounts(accountData);
-      } catch (err) {
-        setError('Failed to load transactions.');
-      }
-    };
-    fetchData();
-  }, []);
+    useEffect(() => {
+        if (!user) return
+        loadData()
+    }, [user])
 
-  const totalBalance = accounts.reduce((sum, acc) => sum + acc.balance, 0);
+    const loadData = async () => {
+        try {
+            const [allTx, allAcc] = await Promise.all([getTransactions(), getAccounts()])
+            const userAccts = allAcc.filter(a => a.userId === user.id).map(x => x.id)
+            const filteredTx = allTx.filter(t => userAccts.includes(t.fromAccountId) || userAccts.includes(t.toAccountId))
+            setTxs(filteredTx)
+            const myAccounts = allAcc.filter(a => a.userId === user.id)
+            setAccs(myAccounts)
+            if (loc.state?.fromAccountId) setFrom(loc.state.fromAccountId)
+        } catch (e) {
+            setError(e.message)
+        }
+    }
 
-  const handleViewDetails = (tx) => {
-    setSelectedTransaction(tx);
-  };
+    const handleTransfer = async (e) => {
+        e.preventDefault()
+        setError('')
+        if (!from || !to) {
+            setError('Please select accounts')
+            return
+        }
+        if (from === to) {
+            setError('From and To cannot be the same')
+            return
+        }
+        if (Number(amt) <= 0) {
+            setError('Amount must be > 0')
+            return
+        }
+        try {
+            await createTransaction({ fromAccountId: from, toAccountId: to, amount: amt })
+            toast('Transfer completed', 'success')
+            await loadData()
+            setFrom('')
+            setTo('')
+            setAmt('')
+        } catch (err) {
+            setError(err.message)
+        }
+    }
 
-  const handleCloseModal = () => {
-    setSelectedTransaction(null);
-  };
+    if (!user) {
+        return (
+            <div className="p-6">
+                <p>Please login first</p>
+            </div>
+        )
+    }
 
-  return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-800">Transactions</h1>
-          <button
-            onClick={() => navigate('/accounts')}
-            className="px-6 py-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition-all shadow-md flex items-center gap-2"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
-            </svg>
-            Back to Accounts
-          </button>
-        </div>
+    if (txs.length === 0) {
+        return (
+            <div className="p-6">
+                <button onClick={() => nav('/accounts')} className="mb-4 text-blue-500">← Back to Accounts</button>
+                <h1 className="text-2xl font-semibold mb-4">Transactions</h1>
+                <p className="text-sm text-gray-600 mb-4">Transfer money between your accounts</p>
+                {error && <div className="text-red-500 mb-4">{error}</div>}
+                <p className="text-gray-500">No transactions found</p>
+                <form onSubmit={handleTransfer} className="mt-4 flex gap-2 flex-wrap">
+                    <select value={from} onChange={e => setFrom(e.target.value)} className="border p-2">
+                        <option value="">From</option>
+                        {accs.map(a => (
+                            <option key={a.id} value={a.id}>
+                                {a.accountNumber} (Balance: ${a.balance})
+                            </option>
+                        ))}
+                    </select>
+                    <select value={to} onChange={e => setTo(e.target.value)} className="border p-2">
+                        <option value="">To</option>
+                        {accs.map(a => (
+                            <option key={a.id} value={a.id}>
+                                {a.accountNumber} (Balance: ${a.balance})
+                            </option>
+                        ))}
+                    </select>
+                    <input
+                        type="number"
+                        placeholder="Amount"
+                        value={amt}
+                        onChange={e => setAmt(e.target.value)}
+                        className="border p-2 w-28"
+                    />
+                    <button type="submit" className="bg-blue-500 text-white p-2 rounded">
+                        Send
+                    </button>
+                </form>
+            </div>
+        )
+    }
 
-        {/* Error and Notification */}
-        {error && (
-          <div className="mb-6 p-4 bg-red-100 text-red-700 rounded-lg">{error}</div>
-        )}
-        {notification && (
-          <div className="mb-6 p-4 bg-green-100 text-green-700 rounded-lg">{notification}</div>
-        )}
+    return (
+        <div className="p-6">
+            <button onClick={() => nav('/accounts')} className="mb-4 text-blue-500">← Back to Accounts</button>
+            <h1 className="text-3xl font-bold mb-2">Transactions</h1>
+            <p className="text-sm text-gray-600 mb-4">Transfer money between your accounts</p>
+            {error && <div className="text-red-500 mb-4">{error}</div>}
 
-        {/* Main Layout: Two Columns */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column: New Transaction */}
-          <div className="lg:col-span-1">
-            <TransactionForm
-              setTransactions={setTransactions}
-              setError={setError}
-              setNotification={setNotification}
-            />
-          </div>
+            <form onSubmit={handleTransfer} className="mb-4 flex gap-2 flex-wrap">
+                <select value={from} onChange={e => setFrom(e.target.value)} className="border p-2">
+                    <option value="">From</option>
+                    {accs.map(a => (
+                        <option key={a.id} value={a.id}>
+                            {a.accountNumber} (Balance: ${a.balance})
+                        </option>
+                    ))}
+                </select>
+                <select value={to} onChange={e => setTo(e.target.value)} className="border p-2">
+                    <option value="">To</option>
+                    {accs.map(a => (
+                        <option key={a.id} value={a.id}>
+                            {a.accountNumber} (Balance: ${a.balance})
+                        </option>
+                    ))}
+                </select>
+                <input
+                    type="number"
+                    placeholder="Amount"
+                    value={amt}
+                    onChange={e => setAmt(e.target.value)}
+                    className="border p-2 w-28"
+                />
+                <button type="submit" className="bg-blue-500 text-white p-2 rounded">
+                    Send
+                </button>
+            </form>
 
-          {/* Right Column: Transaction History and Balance Flow */}
-          <div className="lg:col-span-2 flex flex-col gap-6">
-            {/* Transaction History */}
-            <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
-              <h3 className="text-2xl font-semibold text-gray-800 mb-4">Transaction History</h3>
-              {transactions.length === 0 ? (
-                <div className="p-6 text-center text-gray-500">
-                  No transactions yet. Start by adding one above!
-                </div>
-              ) : (
-                <ul className="space-y-4 max-h-96 overflow-y-auto pr-2">
-                  {transactions.map((tx) => (
-                    <li
-                      key={tx.id}
-                      className="p-4 bg-gray-50 rounded-lg shadow-sm border border-gray-200 flex justify-between items-center"
-                    >
-                      <div className="flex-1">
-                        <span className="text-lg font-medium text-gray-800">
-                          {tx.fromAccount} → {tx.toAccount}
-                        </span>
-                        <p className="text-sm text-gray-500 truncate max-w-xs">
-                          {tx.reason || 'No reason provided'} -{' '}
-                          {tx.description?.length > 30
-                            ? `${tx.description.substring(0, 30)}...`
-                            : tx.description || 'No description'}
+            <ul>
+                {txs.map(tx => (
+                    <li key={tx.id} className="border p-4 mb-2 flex flex-col gap-1">
+                        <p>Transaction #{tx.id}: {tx.fromAccountId} → {tx.toAccountId}</p>
+                        <p>Amount: ${tx.amount}, Status: {tx.status}</p>
+                        <p className="text-sm text-gray-500">
+                            Created: {tx.createdAt ? new Date(tx.createdAt).toLocaleString() : 'N/A'}
                         </p>
-                      </div>
-                      <div className="text-right flex items-center gap-4">
-                        <span
-                          className={`text-lg font-semibold ${
-                            tx.type === 'debit' ? 'text-red-600' : 'text-green-600'
-                          }`}
-                        >
-                          {tx.type === 'debit' ? '-' : '+'}${tx.amount}
-                        </span>
-                        <button
-                          onClick={() => handleViewDetails(tx)}
-                          className="text-blue-600 hover:underline text-sm"
-                        >
-                          View Details
-                        </button>
-                      </div>
                     </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-
-            {/* Balance Flow */}
-            <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
-              <h3 className="text-2xl font-semibold text-gray-800 mb-4">Balance Flow</h3>
-              <div className="text-lg font-medium text-gray-800 mb-4">
-                Total Balance: <span className="text-green-600">${totalBalance.toFixed(2)}</span>
-              </div>
-              <ul className="space-y-2 max-h-48 overflow-y-auto pr-2">
-                {accounts.map((acc) => (
-                  <li key={acc.id} className="text-sm text-gray-600 p-2 bg-gray-50 rounded-lg">
-                    {acc.name} ({acc.type}): ${acc.balance.toFixed(2)}
-                  </li>
                 ))}
-              </ul>
-            </div>
-          </div>
+            </ul>
         </div>
-
-        {/* Modal for Transaction Details */}
-        {selectedTransaction && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 max-w-md w-full max-h-[80vh] overflow-y-auto">
-              <h3 className="text-xl font-semibold text-gray-800 mb-4">Transaction Details</h3>
-              <div className="space-y-3">
-                <p><strong>From:</strong> {selectedTransaction.fromAccount}</p>
-                <p><strong>To:</strong> {selectedTransaction.toAccount}</p>
-                <p><strong>Amount:</strong> {selectedTransaction.type === 'debit' ? '-' : '+'}${selectedTransaction.amount}</p>
-                <p><strong>Type:</strong> {selectedTransaction.type}</p>
-                <p><strong>Reason:</strong> {selectedTransaction.reason || 'N/A'}</p>
-                <p><strong>Status:</strong> {selectedTransaction.status}</p>
-                <div>
-                  <p className="font-semibold">Description:</p>
-                  <div className="mt-2 p-2 bg-gray-100 rounded max-h-40 overflow-y-auto whitespace-pre-wrap break-words">
-                    {selectedTransaction.description || 'No description provided'}
-                  </div>
-                </div>
-              </div>
-              <button
-                onClick={handleCloseModal}
-                className="mt-4 w-full p-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition-all"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
+    )
 }
-
-export default Transactions;

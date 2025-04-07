@@ -1,8 +1,8 @@
-import io from 'socket.io-client';
+import io from 'socket.io-client'
 
-const socket = io('http://localhost:3000'); // Mock for now, backend later
+const socket = io('http://localhost:4004', { transports: ['websocket'] })
 
 export const subscribeToNotifications = (callback) => {
-  setTimeout(() => callback('Transaction completed (mock)'), 2000); // Simulate notification
-  // socket.on('notification', callback); // Uncomment when backend is ready
-};
+    socket.off('notification')
+    socket.on('notification', (n) => callback(n))
+}

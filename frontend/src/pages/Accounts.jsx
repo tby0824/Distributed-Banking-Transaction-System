@@ -1,118 +1,179 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import AccountList from '../components/AccountList';
-import AccountFormModal from '../components/AccountFormModal';
-import { getAccounts } from '../services/accountService';
+import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { getAccounts, createAccount, deleteAccount, updateAccountBalance } from '../services/accountService'
+import { useToast } from '../store/ToastContext'
+import { useAuth } from '../store/AuthContext'
+import { decodeToken } from '../utils/decodeToken'
 
-function Accounts() {
-  const [accounts, setAccounts] = useState([]);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const navigate = useNavigate();
+export default function Accounts() {
+    const [accounts, setAccounts] = useState([])
+    const [error, setError] = useState('')
+    const [newAcct, setNewAcct] = useState('')
+    const [depositAmounts, setDepositAmounts] = useState({})
+    const [withdrawAmounts, setWithdrawAmounts] = useState({})
+    const toast = useToast()
+    const navigate = useNavigate()
+    const { token } = useAuth()
+    const user = decodeToken(token)
 
-  useEffect(() => {
-    const fetchAccounts = async () => {
-      try {
-        setLoading(true);
-        const data = await getAccounts();
-        setAccounts(data);
-      } catch (err) {
-        setError('Failed to load accounts. Please try again.');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchAccounts();
-  }, []);
+    useEffect(() => {
+        if (!user) return
+        loadAccounts()
+    }, [user])
 
-  const totalBalance = accounts.reduce((sum, account) => sum + account.balance, 0);
+    const loadAccounts = async () => {
+        try {
+            const all = await getAccounts()
+            const filtered = all.filter(a => a.userId === user.id)
+            setAccounts(filtered)
+        } catch (e) {
+            setError(e.message)
+        }
+    }
 
-  return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-5xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-800">Your Banking Dashboard</h1>
-          <div className="flex gap-4">
-            <button
-              onClick={() => navigate('/transactions')}
-              className="px-6 py-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition-all shadow-md flex items-center gap-2"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-              </svg>
-              Transactions
-            </button>
-            <button
-              onClick={() => navigate('/home')}
-              className="px-6 py-2 bg-gray-600 text-white rounded-full hover:bg-gray-700 transition-all shadow-md flex items-center gap-2"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7m-9 2v7a2 2 0 002 2h4a2 2 0 002-2v-7" />
-              </svg>
-              Back to Home
-            </button>
-          </div>
-        </div>
+    const handleCreate = async () => {
+        setError('')
+        if (!user) return
+        if (!newAcct.trim()) {
+            setError('Account number required')
+            return
+        }
+        try {
+            await createAccount({ userId: user.id, accountNumber: newAcct })
+            toast('Account created', 'success')
+            setNewAcct('')
+            loadAccounts()
+        } catch (e) {
+            setError(e.message)
+        }
+    }
 
-        <div className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-6 rounded-xl shadow-lg mb-8">
-          <h2 className="text-lg font-medium">Total Balance</h2>
-          <p className="text-4xl font-bold mt-2">${totalBalance.toFixed(2)}</p>
-        </div>
+    const handleDelete = async (id) => {
+        if (!confirm('Delete this account?')) return
+        try {
+            await deleteAccount(id)
+            toast('Account deleted', 'success')
+            loadAccounts()
+        } catch (e) {
+            setError(e.message)
+        }
+    }
 
-        {error && (
-          <div className="mb-6 p-4 bg-red-100 text-red-700 rounded-lg">{error}</div>
-        )}
+    const handleDeposit = async (id) => {
+        const amt = Number(depositAmounts[id])
+        if (amt <= 0) {
+            setError('Deposit must be > 0')
+            return
+        }
+        try {
+            await updateAccountBalance(id, amt)
+            toast('Deposit successful', 'success')
+            setDepositAmounts(prev => ({ ...prev, [id]: '' }))
+            loadAccounts()
+        } catch (e) {
+            setError(e.message)
+        }
+    }
 
-        {loading ? (
-          <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500 mx-auto"></div>
-          </div>
-        ) : (
-          <>
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-2xl font-semibold text-gray-800">Your Accounts</h3>
-              <button
-                onClick={() => setIsModalOpen(true)}
-                className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors shadow"
-              >
-                + Add New Account
-              </button>
+    const handleWithdraw = async (id) => {
+        const amt = Number(withdrawAmounts[id])
+        if (amt <= 0) {
+            setError('Withdraw must be > 0')
+            return
+        }
+        try {
+            await updateAccountBalance(id, -amt)
+            toast('Withdrawal successful', 'success')
+            setWithdrawAmounts(prev => ({ ...prev, [id]: '' }))
+            loadAccounts()
+        } catch (e) {
+            setError(e.message)
+        }
+    }
+
+    if (!user) {
+        return (
+            <div className="p-6">
+                <p>Please login first</p>
             </div>
-            <AccountList
-              accounts={accounts}
-              onAccountsChange={setAccounts}
-              onError={setError}
-            />
+        )
+    }
 
-            <div className="mt-12">
-              <h3 className="text-2xl font-semibold text-gray-800 mb-4">Latest Offers</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="p-6 bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow">
-                  <h4 className="text-xl font-semibold text-gray-800">New Savings Plan</h4>
-                  <p className="text-gray-600 mt-2">Earn up to 3.5% interest!</p>
-                  <button className="mt-4 text-blue-600 font-medium hover:underline">Learn More</button>
+    if (accounts.length === 0) {
+        return (
+            <div className="p-6">
+                <button onClick={() => navigate('/')} className="mb-4 text-blue-500">← Home</button>
+                <h1 className="text-2xl">No accounts yet</h1>
+                {error && <div className="text-red-500 mb-2">{error}</div>}
+                <div className="mt-4 flex gap-2">
+                    <input
+                        value={newAcct}
+                        onChange={e => setNewAcct(e.target.value)}
+                        placeholder="Account Number"
+                        className="border p-2"
+                    />
+                    <button onClick={handleCreate} className="bg-green-500 text-white p-2 rounded">Add</button>
                 </div>
-                <div className="p-6 bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow">
-                  <h4 className="text-xl font-semibold text-gray-800">Credit Card Upgrade</h4>
-                  <p className="text-gray-600 mt-2">Get 2% cashback on all purchases.</p>
-                  <button className="mt-4 text-blue-600 font-medium hover:underline">Learn More</button>
-                </div>
-              </div>
             </div>
-          </>
-        )}
+        )
+    }
 
-        {isModalOpen && (
-          <AccountFormModal
-            onAccountsChange={setAccounts}
-            onError={setError}
-            closeModal={() => setIsModalOpen(false)}
-          />
-        )}
-      </div>
-    </div>
-  );
+    return (
+        <div className="p-6">
+            <button onClick={() => navigate('/')} className="mb-4 text-blue-500">← Back to Home</button>
+            <h1 className="text-3xl font-bold mb-4">Accounts</h1>
+            {error && <div className="text-red-500 mb-4">{error}</div>}
+            <div className="mb-4 flex gap-2">
+                <input
+                    value={newAcct}
+                    onChange={e => setNewAcct(e.target.value)}
+                    placeholder="Account Number"
+                    className="border p-2 flex-1"
+                />
+                <button onClick={handleCreate} className="bg-green-500 text-white p-2 rounded">Add</button>
+            </div>
+            <ul>
+                {accounts.map(a => (
+                    <li key={a.id} className="border p-4 mb-4">
+                        <p className="font-semibold">ID {a.id}: {a.accountNumber}</p>
+                        <p>Balance: ${a.balance}</p>
+                        <div className="mt-2 flex flex-wrap gap-2">
+                            <input
+                                type="number"
+                                placeholder="Deposit"
+                                value={depositAmounts[a.id] || ''}
+                                onChange={e => setDepositAmounts(prev => ({ ...prev, [a.id]: e.target.value }))}
+                                className="border p-1 w-24"
+                            />
+                            <button onClick={() => handleDeposit(a.id)} className="bg-blue-500 text-white p-1 rounded">Deposit</button>
+
+                            <input
+                                type="number"
+                                placeholder="Withdraw"
+                                value={withdrawAmounts[a.id] || ''}
+                                onChange={e => setWithdrawAmounts(prev => ({ ...prev, [a.id]: e.target.value }))}
+                                className="border p-1 w-24"
+                            />
+                            <button onClick={() => handleWithdraw(a.id)} className="bg-yellow-500 text-white p-1 rounded">Withdraw</button>
+
+                            <button onClick={() => navigate('/transactions', { state: { fromAccountId: a.id } })}
+                                    className="bg-indigo-500 text-white p-1 rounded"
+                            >
+                                Transfer
+                            </button>
+                            <button onClick={() => navigate('/notifications')} className="bg-purple-500 text-white p-1 rounded">
+                                Notifications
+                            </button>
+                            <button onClick={() => navigate('/fileupload')} className="bg-pink-500 text-white p-1 rounded">
+                                File Upload
+                            </button>
+                            <button onClick={() => handleDelete(a.id)} className="bg-red-500 text-white p-1 rounded">
+                                Delete
+                            </button>
+                        </div>
+                    </li>
+                ))}
+            </ul>
+        </div>
+    )
 }
-
-export default Accounts;

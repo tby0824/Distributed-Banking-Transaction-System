@@ -1,9 +1,13 @@
-export const login = (email, password) => {
-  console.log('Login:', { email, password });
-  return { token: 'mock-token' }; // Mock response
-};
+import { apiFetch } from '../utils/api'
 
-export const register = (email, password) => {
-  console.log('Register:', { email, password });
-  return { token: 'mock-token' }; // Mock response
-};
+export const login = (email, password) => apiFetch('/auth/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password })
+})
+
+export const register = (email, password) => apiFetch('/auth/register', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password })
+})
