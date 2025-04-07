@@ -28,7 +28,8 @@ Our goal is to address the limitations of monolithic applications by designing a
   - Zookeeper for managing Kafka brokers  
   - Redis for distributed caching  
   - Socket.IO for real-time notifications  
-  - Multer for file uploads  
+  - Multer for file uploads
+  - RESTful API for all services
 - **Cloud Services:**  
   - **Azure Database for PostgreSQL:** Used to store all microservices data.  
   - **Azure Blob Storage:** Used for file upload.
