@@ -6,7 +6,7 @@
 
 This markdown is written when we are working for the pre-delicate-frontend. Unfortunately, due to limited time, we have not yet combined it with our backend. But we are all very satisfied with this frontend interface. So we keep this markdown for the course project and provide the corresponding user guide.
 
-Video demo for this Pre-Delicate-Frontend: https://drive.google.com/file/d/1VVz86LHWlr3ZqUNysAfCrjWWonzhbbcg/view?usp=drive_link
+Video demo for this Pre-Delicate-Frontend: [https://drive.google.com/file/d/1VVz86LHWlr3ZqUNysAfCrjWWonzhbbcg/view?usp=drive_link](https://drive.google.com/file/d/1HoE_3F0noIv0vvKt48iEWDNq_5nmbBXR/view?usp=sharing)
 
 ## Motivation
 
