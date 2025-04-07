@@ -114,7 +114,7 @@ Middleware components:
    - Install [Node.js](https://nodejs.org/) (v18 or higher).
    - Navigate to the frontend directory:
      ```bash
-     cd /path/to/Distributed-Banking-Transaction-System-main/frontend
+     cd /path/to/Distributed-Banking-Transaction-System/frontend
      ```
    - Install dependencies:
      ```bash
