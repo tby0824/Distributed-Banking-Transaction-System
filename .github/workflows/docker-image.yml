@@ -2,17 +2,30 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v4
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+      - uses: actions/checkout@v4
+
+      - name: Build Docker image for account-service
+        run: docker build ./backend/account-service -f ./backend/account-service/Dockerfile -t account-service:latest
+
+      - name: Build Docker image for api-gateway
+        run: docker build ./backend/api-gateway -f ./backend/api-gateway/Dockerfile -t api-gateway:latest
+
+      - name: Build Docker image for auth-service
+        run: docker build ./backend/auth-service -f ./backend/auth-service/Dockerfile -t auth-service:latest
+
+      - name: Build Docker image for file-service
+        run: docker build ./backend/file-service -f ./backend/file-service/Dockerfile -t file-service:latest
+
+      - name: Build Docker image for notification-service
+        run: docker build ./backend/notification-service -f ./backend/notification-service/Dockerfile -t notification-service:latest
+
+      - name: Build Docker image for transaction-service
+        run: docker build ./backend/transaction-service -f ./backend/transaction-service/Dockerfile -t transaction-service:latest
