@@ -28,7 +28,8 @@ Our goal is to address the limitations of monolithic applications by designing a
   - Zookeeper for managing Kafka brokers  
   - Redis for distributed caching  
   - Socket.IO for real-time notifications  
-  - Multer for file uploads  
+  - Multer for file uploads
+  - RESTful API for all services
 - **Cloud Services:**  
   - **Azure Database for PostgreSQL:** Used to store all microservices data.  
   - **Azure Blob Storage:** Used for file upload.
@@ -96,7 +97,7 @@ Middleware components:
    - Install [Docker Desktop](https://www.docker.com/products/docker-desktop).
    - Navigate to the backend directory (where `docker-compose.yml` is located):
      ```bash
-     cd /path/to/Distributed-Banking-Transaction-System-main/backend
+     cd /path/to/Distributed-Banking-Transaction-System/backend
      ```
    - Start all backend microservices:
      ```bash
@@ -114,7 +115,7 @@ Middleware components:
    - Install [Node.js](https://nodejs.org/) (v18 or higher).
    - Navigate to the frontend directory:
      ```bash
-     cd /path/to/Distributed-Banking-Transaction-System-main/frontend
+     cd /path/to/Distributed-Banking-Transaction-System/frontend
      ```
    - Install dependencies:
      ```bash
