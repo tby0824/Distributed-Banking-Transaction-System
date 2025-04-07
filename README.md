@@ -30,14 +30,13 @@ Our goal is to address the limitations of monolithic applications by designing a
   - Socket.IO for real-time notifications  
   - Multer for file uploads  
 - **Cloud Services:**  
-  - **Azure Database for PostgreSQL:** Used in production to store all microservices data with high availability and secure connectivity.  
+  - **Azure Database for PostgreSQL:** Used to store all microservices data.  
   - **Azure Blob Storage:** Used for file upload.
 - **Containerization & Orchestration:**  
-  - Docker & Docker Compose for local development  
-  - (Planned) Kubernetes (AKS) for production deployment with API Gateway and Ingress
+  - Docker for local development  
+  - (Planned) Kubernetes (AKS) for production deployment with API Gateway and Ingress, but time is not enough.
 
-## Microservices Architecture & Middleware
-Our system is built as a collection of independent microservices:
+## Microservices Architecture & Middleware:
 - **Auth Service:** Manages user registration, login, and JWT token issuance.
 - **Account Service:** Handles account creation, balance updates (deposit, withdraw), and deletion.
 - **Transaction Service:** Processes fund transfers between accounts using a Saga pattern with compensation for error handling.
@@ -142,21 +141,18 @@ Middleware components:
 - Use browser developer tools to inspect network requests and debug issues.
 
 ## Deployment Information
-- **Local Development:**  
-  - Docker is used for local orchestration.
-- **Production Deployment:**  
-  - Each microservice can be containerized and deployed to a Kubernetes cluster (e.g., AKS) with an API Gateway and Ingress for secure, scalable routing, but time is not enough.
-  - Uses a simple CI/CD process
+- **Local Development: docker
+- **Production Deployment: simple CI/CD.
 
 ## Individual Contributions
-- **Boyuan Tan:** Implemented backend.
+- **Boyuan Tan:** Implemented backend, docker, database, cloud storge.
 - **Minghao Ma:** Implemented frontend.
 - **Yiming Li:** Implemented frontend.
 
 ## Lessons Learned and Concluding Remarks
 - Microservices enhance scalability and maintainability, while bringing more distributed transaction complexity
 - Middleware such as Kafka/Redis/Socket.IO effectively improve system stability and real-time performance
-- The use of Azure Blob demonstrates the role of cloud storage in distributed applications
+- The use of Azure Blob demonstrates the role of cloud storage in distributed applications, also including their database.
 
 ## Video Demo
 A demo video by Yiming Li(teammate): [4 mins video](https://drive.google.com/file/d/1R-J5nz73TkYlvky1uyYa-Mu-L98TrdGq/view?usp=sharing)
